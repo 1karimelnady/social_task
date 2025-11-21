@@ -5,6 +5,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart' as fb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:social_task/core/exeptions/exeptions.dart';
 import 'package:social_task/core/secure_storage/secure_storage_helper.dart' show SecureStorageHelper;
+import 'package:social_task/core/services/service.dart';
 import 'package:social_task/features/auth/data/models/user_model.dart';
 
 abstract class AuthBaseRemoteDataSource {
@@ -27,34 +28,76 @@ class AuthRemoteDataSourceImpl implements AuthBaseRemoteDataSource {
   });
 
   @override
-  Future<UserModel> loginWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        throw ExceptionWithMessage(message: 'Google login cancelled.');
-      }
+  // Future<UserModel> loginWithGoogle() async {
+  //   try {
+  //     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+  //     if (googleUser == null) {
+  //       throw ExceptionWithMessage(message: 'Google login cancelled.');
+  //     }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
+  //     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+  //     final OAuthCredential credential = GoogleAuthProvider.credential(
+  //       idToken: googleAuth.idToken,
+  //     );
 
-      final UserCredential userCredential = await firebaseAuth.signInWithCredential(credential);
-      final user = userCredential.user!;
+  //     final UserCredential userCredential = await firebaseAuth.signInWithCredential(credential);
+  //     final user = userCredential.user!;
 
-      await secureStorageHelper.assignData(key: 'user_id', value: user.uid);
+  //     await secureStorageHelper.assignData(key: 'user_id', value: user.uid);
 
-      return UserModel.fromFirebaseUser(
-        user.uid,
-        user.displayName ?? 'Google User',
-        user.email ?? '',
-      );
-    } on FirebaseAuthException catch (e) {
-      throw ServerException();
-    } catch (e) {
-      throw UnknownException();
+  //     return UserModel.fromFirebaseUser(
+  //       user.uid,
+  //       user.displayName ?? 'Google User',
+  //       user.email ?? '',
+  //     );
+  //   } on FirebaseAuthException catch (e) {
+  //     throw ServerException();
+  //   } catch (e) {
+  //       print('Google login error: $e');
+  // print('Google login stack trace: $e');
+  //     throw UnknownException();
+  //   }
+  // }
+Future<UserModel> loginWithGoogle() async {
+  try {
+    final GoogleSignIn googleSignIn = sl<GoogleSignIn>();
+
+    await googleSignIn.initialize(
+      clientId: '728895104988-ahmmv5cqfei7uqsu4j59mcsoo6ruidh5.apps.googleusercontent.com',
+    );
+
+    // فتح واجهة تسجيل الدخول
+    final GoogleSignInAccount? googleUser = await googleSignIn.authenticate();
+
+    if (googleUser == null) {
+      throw ExceptionWithMessage(message: 'Google login cancelled.');
     }
+
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+    final OAuthCredential credential = GoogleAuthProvider.credential(
+      idToken: googleAuth.idToken,
+    );
+
+    final UserCredential userCredential =
+        await firebaseAuth.signInWithCredential(credential);
+
+    final user = userCredential.user!;
+
+    await secureStorageHelper.assignData(key: 'user_id', value: user.uid);
+
+    return UserModel.fromFirebaseUser(
+      user.uid,
+      user.displayName ?? 'Google User',
+      user.email ?? '',
+    );
+  } on FirebaseAuthException catch (e) {
+    throw ServerException();
+  } catch (e) {
+    print('Google login error: $e');
+    throw UnknownException();
   }
+}
 
   @override
   Future<UserModel> loginWithFacebook() async {

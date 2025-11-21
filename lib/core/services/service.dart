@@ -17,11 +17,19 @@ import 'package:social_task/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:social_task/features/auth/domain/use_cases/save_url_use_case.dart';
 import 'package:social_task/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:social_task/features/auth/presentation/bloc/settings_bloc.dart';
+import 'package:social_task/features/splash/presentation/bloc/splash_bloc.dart';
 
 final sl = GetIt.instance;
 
+
 Future<void> getItSetup() async {
+
   await _injectExternalDependencies();
+      final googleSignIn = sl<GoogleSignIn>();
+  await googleSignIn.initialize(
+    clientId: 'YOUR_CLIENT_ID',
+   
+  );
   await _injectCore();
   injectDataSources();
   injectRepositories();
@@ -36,9 +44,9 @@ _injectExternalDependencies() async {
   sl.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
 
 sl.registerLazySingleton<GoogleSignIn>(
-  () => GoogleSignIn.instance
-
+  () => GoogleSignIn.instance,
 );
+
 
   sl.registerLazySingleton<FacebookAuth>(() => FacebookAuth.instance);
 }
@@ -54,48 +62,47 @@ _injectCore() async {
 }
 
 injectDataSources() {
-  sl.registerLazySingleton<AuthBaseRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(
-      secureStorageHelper: sl(),
-      firebaseAuth: sl(),
-      googleSignIn: sl(),
-      facebookAuth: sl(),
-    ),
-  );
+sl.registerLazySingleton<AuthBaseRemoteDataSource>(
+ () => AuthRemoteDataSourceImpl(
+secureStorageHelper: sl<SecureStorageHelper>(), // ✅ تم تحديد النوع
+firebaseAuth: sl<FirebaseAuth>(), // ✅ تم تحديد النوع
+googleSignIn: sl<GoogleSignIn>(), // ✅ تم تحديد النوع
+facebookAuth: sl<FacebookAuth>(), // ✅ تم تحديد النوع
+ ),
+);
 
-  sl.registerLazySingleton<SettingsBaseDataSource>(
-    () => SettingsDataSourceImpl(sharedPreferences: sl()),
-  );
+sl.registerLazySingleton<SettingsBaseDataSource>(
+() => SettingsDataSourceImpl(sharedPreferences: sl<SharedPreferences>()), // ✅ تم تحديد النوع
+);
 
-  sl.registerLazySingleton<DeviceConnectionsBaseDataSource>(
-    () => DeviceConnectionsDataSourceImpl(),
-  );
+ sl.registerLazySingleton<DeviceConnectionsBaseDataSource>(
+() => DeviceConnectionsDataSourceImpl(),
+ );
 }
-
 injectRepositories() {
   sl.registerLazySingleton<AuthBaseRepostiory>(
     () => AuthRepositoryImpl(
-      authBaseRemoteDateSource: sl(),
-      secureStorageHelper: sl(),
+      authBaseRemoteDateSource: sl<AuthBaseRemoteDataSource>(), // ✅ تم التحديد
+      secureStorageHelper: sl<SecureStorageHelper>(), // ✅ تم التحديد
     ),
   );
 
   sl.registerLazySingleton<SettingsBaseRepository>(
     () => SettingsRepositoryImpl(
-      settingsDataSource: sl(),
-      deviceConnectionsDataSource: sl(),
+      settingsDataSource: sl<SettingsBaseDataSource>(), // ✅ تم التحديد
+      deviceConnectionsDataSource: sl<DeviceConnectionsBaseDataSource>(), // ✅ تم التحديد
     ),
   );
 }
 
 injectUseCases() {
-  sl.registerLazySingleton(() => LoginWithGoogleUseCase(authBaseRepostiory: sl()));
-  sl.registerLazySingleton(() => LoginWithFacebookUseCase(authBaseRepostiory: sl()));
-  sl.registerLazySingleton(() => LogoutUseCase(authBaseRepostiory: sl()));
+ sl.registerLazySingleton(() => LoginWithGoogleUseCase(authBaseRepostiory: sl<AuthBaseRepostiory>())); // ✅ تم التحديد
+  sl.registerLazySingleton(() => LoginWithFacebookUseCase(authBaseRepostiory: sl<AuthBaseRepostiory>())); // ✅ تم التحديد
+  sl.registerLazySingleton(() => LogoutUseCase(authBaseRepostiory: sl<AuthBaseRepostiory>())); // ✅ تم التحديد
 
-  sl.registerLazySingleton(() => GetUrlUseCase(settingsRepository: sl()));
-  sl.registerLazySingleton(() => SaveUrlUseCase(settingsRepository: sl()));
-  sl.registerLazySingleton(() => GetDevicesUseCase(settingsRepository: sl()));
+  sl.registerLazySingleton(() => GetUrlUseCase(settingsRepository: sl<SettingsBaseRepository>())); // ✅ تم التحديد
+  sl.registerLazySingleton(() => SaveUrlUseCase(settingsRepository: sl<SettingsBaseRepository>())); // ✅ تم التحديد
+  sl.registerLazySingleton(() => GetDevicesUseCase(settingsRepository: sl<SettingsBaseRepository>())); // ✅ تم التحديد
 }
 
 injectBlocs() {
@@ -104,6 +111,8 @@ injectBlocs() {
     loginWithFacebookUseCase: sl(),
     logoutUseCase: sl(),
   ));
+    sl.registerFactory(() => SplashBloc(secureStorageHelper: sl()));
+
 
   sl.registerFactory(() => SettingsBloc(
     getUrlUseCase: sl(),
