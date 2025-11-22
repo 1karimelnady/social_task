@@ -29,7 +29,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     final urlResult = await getUrlUseCase(NoParams());
     
     urlResult.fold(
-      (failure) => emit(const SettingsLoaded(url: '', devices: [])), // لا يوجد URL مخزن
+      (failure) => emit(const SettingsLoaded(url: '', devices: [])),
       (url) => emit(SettingsLoaded(url: url, devices: state.devices)),
     );
     add(LoadDevicesEvent());
@@ -39,7 +39,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     emit(SettingsLoading());
     final result = await saveUrlUseCase(SaveUrlParams(url: event.url));
 
-    await Future.delayed(const Duration(milliseconds: 500)); // لتبدو العملية واضحة
+    await Future.delayed(const Duration(milliseconds: 500));
 
     result.fold(
       (failure) => emit(SettingsError(failure: failure)),

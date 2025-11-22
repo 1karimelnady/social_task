@@ -48,7 +48,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('URL saved successfully!')),
               );
-              // تحديث الـ URL المعروض فوراً
               _urlController.text = state.url;
             } else if (state is SettingsError) {
               ScaffoldMessenger.of(context).showSnackBar(

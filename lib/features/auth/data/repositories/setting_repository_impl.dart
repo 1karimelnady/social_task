@@ -39,7 +39,6 @@ class SettingsRepositoryImpl implements SettingsBaseRepository {
   Future<Either<Failure, List<DeviceEntity>>> getAvailableDevices() async {
     try {
       final deviceModels = await deviceConnectionsDataSource.getAvailableDevices();
-      // تحويل Model إلى Entity
       final deviceEntities = deviceModels.map((m) => DeviceEntity(name: m.name, address: m.address)).toList();
       return Right(deviceEntities);
     } on Exception catch (e) {

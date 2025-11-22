@@ -5,7 +5,6 @@ import 'package:social_task/core/exeptions/failure.dart';
 import 'package:social_task/features/auth/domain/entities/user_entity.dart';
 import 'package:social_task/features/auth/domain/repositories/auth_repository.dart';
 
-// No params needed for social login
 class NoParams extends Equatable {
   @override
   List<Object?> get props => [];

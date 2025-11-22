@@ -28,36 +28,7 @@ class AuthRemoteDataSourceImpl implements AuthBaseRemoteDataSource {
   });
 
   @override
-  // Future<UserModel> loginWithGoogle() async {
-  //   try {
-  //     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-  //     if (googleUser == null) {
-  //       throw ExceptionWithMessage(message: 'Google login cancelled.');
-  //     }
 
-  //     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-  //     final OAuthCredential credential = GoogleAuthProvider.credential(
-  //       idToken: googleAuth.idToken,
-  //     );
-
-  //     final UserCredential userCredential = await firebaseAuth.signInWithCredential(credential);
-  //     final user = userCredential.user!;
-
-  //     await secureStorageHelper.assignData(key: 'user_id', value: user.uid);
-
-  //     return UserModel.fromFirebaseUser(
-  //       user.uid,
-  //       user.displayName ?? 'Google User',
-  //       user.email ?? '',
-  //     );
-  //   } on FirebaseAuthException catch (e) {
-  //     throw ServerException();
-  //   } catch (e) {
-  //       print('Google login error: $e');
-  // print('Google login stack trace: $e');
-  //     throw UnknownException();
-  //   }
-  // }
 Future<UserModel> loginWithGoogle() async {
   try {
     final GoogleSignIn googleSignIn = sl<GoogleSignIn>();
@@ -66,7 +37,6 @@ Future<UserModel> loginWithGoogle() async {
       clientId: '728895104988-ahmmv5cqfei7uqsu4j59mcsoo6ruidh5.apps.googleusercontent.com',
     );
 
-    // فتح واجهة تسجيل الدخول
     final GoogleSignInAccount? googleUser = await googleSignIn.authenticate();
 
     if (googleUser == null) {
@@ -106,7 +76,6 @@ Future<UserModel> loginWithGoogle() async {
       
       if (result.status == fb.LoginStatus.success) {
         final fb.AccessToken? accessToken = result.accessToken;
-        // بعض النسخ قد تستخدم property اسمها 'token' — هنا نتأكد من الوصول الصحيح
         final tokenString = (accessToken as dynamic)?.token ?? (accessToken as dynamic)?.accessToken;
         if (tokenString == null || tokenString.isEmpty) {
           throw ExceptionWithMessage(message: 'Facebook token is null.');

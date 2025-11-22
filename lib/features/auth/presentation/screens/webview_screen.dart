@@ -16,7 +16,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
   @override
   void initState() {
     super.initState();
-    // تأكد من أن الـ URL يبدأ بـ http:// أو https://
     final finalUrl = widget.url.startsWith('http') ? widget.url : 'https://${widget.url}';
     
     controller = WebViewController()
@@ -35,7 +34,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
             });
           },
           onWebResourceError: (WebResourceError error) {
-            // يمكن إضافة منطق للتعامل مع أخطاء التحميل هنا
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Error loading page: ${error.description}')),
             );

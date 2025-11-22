@@ -19,7 +19,6 @@ class LoginScreen extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Welcome, ${state.user.name}')),
               );
-              // الانتقال لشاشة الإعدادات بعد التسجيل بنجاح
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => const SettingsScreen()),
               );
